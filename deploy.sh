@@ -9,17 +9,20 @@ echo "📦 VideoDownloader 部署开始..."
 # 1. 安装 Node.js（如果没有）
 if ! command -v node &> /dev/null; then
   echo "🔧 安装 Node.js 20..."
-  # 检测系统类型
-  if command -v apt-get &> /dev/null; then
-    curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-    sudo apt-get install -y nodejs
-  elif command -v yum &> /dev/null; then
-    curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -
-    sudo yum install -y nodejs
+  ARCH=$(uname -m)
+  if [ "$ARCH" = "x86_64" ]; then
+    NODE_ARCH="x64"
+  elif [ "$ARCH" = "aarch64" ]; then
+    NODE_ARCH="arm64"
   else
-    echo "❌ 不支持的系统，请手动安装 Node.js 20"
-    exit 1
+    NODE_ARCH="$ARCH"
   fi
+  cd /tmp
+  curl -fsSL "https://nodejs.org/dist/v20.18.0/node-v20.18.0-linux-${NODE_ARCH}.tar.xz" -o node.tar.xz
+  tar -xf node.tar.xz
+  cp -r node-v20.18.0-linux-${NODE_ARCH}/{bin,lib,include,share} /usr/local/
+  rm -rf node.tar.xz node-v20.18.0-linux-${NODE_ARCH}
+  cd -
 fi
 
 echo "Node.js 版本: $(node -v)"
@@ -28,7 +31,7 @@ echo "npm 版本: $(npm -v)"
 # 2. 安装 pm2（进程守护）
 if ! command -v pm2 &> /dev/null; then
   echo "🔧 安装 pm2..."
-  sudo npm install -g pm2
+  npm install -g pm2
 fi
 
 # 3. 安装依赖
