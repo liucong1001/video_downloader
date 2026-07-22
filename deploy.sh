@@ -9,8 +9,17 @@ echo "📦 VideoDownloader 部署开始..."
 # 1. 安装 Node.js（如果没有）
 if ! command -v node &> /dev/null; then
   echo "🔧 安装 Node.js 20..."
-  curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-  sudo apt-get install -y nodejs
+  # 检测系统类型
+  if command -v apt-get &> /dev/null; then
+    curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+    sudo apt-get install -y nodejs
+  elif command -v yum &> /dev/null; then
+    curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -
+    sudo yum install -y nodejs
+  else
+    echo "❌ 不支持的系统，请手动安装 Node.js 20"
+    exit 1
+  fi
 fi
 
 echo "Node.js 版本: $(node -v)"
